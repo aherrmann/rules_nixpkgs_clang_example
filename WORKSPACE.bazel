@@ -1,0 +1,48 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "rules_cc",
+    sha256 = "4dccbfd22c0def164c8f47458bd50e0c7148f3d92002cdb459c2a96a68498241",
+    urls = [
+        "https://github.com/bazelbuild/rules_cc/releases/download/0.0.1/rules_cc-0.0.1.tar.gz",
+    ],
+)
+
+http_archive(
+    name = "io_tweag_rules_nixpkgs",
+    sha256 = "7aee35c95251c1751e765f7da09c3bb096d41e6d6dca3c72544781a5573be4aa",
+    strip_prefix = "rules_nixpkgs-0.8.0",
+    urls = ["https://github.com/tweag/rules_nixpkgs/archive/v0.8.0.tar.gz"],
+)
+load("@io_tweag_rules_nixpkgs//nixpkgs:repositories.bzl", "rules_nixpkgs_dependencies")
+
+rules_nixpkgs_dependencies()
+
+load("@rules_cc//cc:repositories.bzl", "rules_cc_dependencies", "rules_cc_toolchains")
+
+rules_cc_dependencies()
+rules_cc_toolchains()
+
+load(
+    "@io_tweag_rules_nixpkgs//nixpkgs:nixpkgs.bzl",
+    "nixpkgs_cc_configure",
+    "nixpkgs_git_repository",
+)
+
+nixpkgs_git_repository(
+    name = "nixpkgs",
+    revision = "21.11",
+    sha256 = "c77bb41cf5dd82f4718fa789d49363f512bb6fa6bc25f8d60902fe2d698ed7cc",
+)
+
+BAZEL_CC_TOOLCHAIN = """
+with import <nixpkgs> { config = {}; overlays = []; };
+llvmPackages_10.stdenv
+"""
+
+nixpkgs_cc_configure(
+    name = "nixpkgs_config_cc",
+    repository = "@nixpkgs",
+    nix_file_content = BAZEL_CC_TOOLCHAIN,
+)
+
