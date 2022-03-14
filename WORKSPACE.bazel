@@ -37,7 +37,7 @@ nixpkgs_git_repository(
 
 BAZEL_CC_TOOLCHAIN = """
 with import <nixpkgs> { config = {}; overlays = []; };
-llvmPackages_10.stdenv
+llvmPackages_10.clang
 """
 
 nixpkgs_cc_configure(
